@@ -34,7 +34,8 @@ export const generateHash = (text) => {
 
 // report saving function
 // Diniy call this function when user submits a report. It takes the text and file, generates a hash, and saves everything to Firestore.
-export const saveReport = async (originalText, fileObject) => {
+// NEW - adding redactedText
+export const saveReport = async (originalText, redactedText, fileObject) => {
   try {
     let fileString = null;
     
@@ -49,12 +50,14 @@ export const saveReport = async (originalText, fileObject) => {
 
     // hashinng here
     // Hash the text + the file data so ANY change changes the hash
-    const contentToHash = originalText + (fileString || "");
+    //NEW - change form originalText to redactedText
+    const contentToHash = redactedText + (fileString || "");
     const docHash = generateHash(contentToHash);
     
     // Save to Database
     await addDoc(collection(db, "submissions"), {
       text_content: originalText,
+      redacted_content: redactedText, //NEW - adding this
       file_data: fileString, // <--- Your file is saved here as a text string!
       hash: docHash, 
       timestamp: serverTimestamp(),

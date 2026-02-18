@@ -5,7 +5,8 @@ function App() {
   const [text, setText] = useState("")
   const [file, setFile] = useState(null)
   const [status, setStatus] = useState("idle")
-  
+  //NEW - adding bridge
+  const [redactedText, setRedactedText] = useState("") // New state for AI output
   // New state to remember the correct file name
   const [downloadUrl, setDownloadUrl] = useState(null)
   const [fileName, setFileName] = useState("evidence") 
@@ -14,10 +15,25 @@ function App() {
     if (!text && !file) return alert("Please enter text or pick a file first.")
     
     setStatus("uploading")
-    
+
     try {
+      // --- NEW: AI REDACTION BRIDGE ---
+      // This sends the text to your geminiRedaction.py server
+      const aiResponse = await fetch('http://127.0.0.1:5000/redact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ text: text })
+      });
+      
+      const aiData = await aiResponse.json();
+      const cleanText = aiData.redactedText; 
+      setRedactedText(cleanText); 
+      // --- END NEW SECTION ---
+    
+    //try {
       // 1. Upload to Firebase
-      const hash = await saveReport(text, file)
+      //NEW - add cleanText
+      const hash = await saveReport(text, cleanText, file)
       
       // 2. Create the download link with the CORRECT name
       if (file) {
@@ -74,7 +90,15 @@ function App() {
           {status === "uploading" ? "Securing..." : "Secure & Submit"}
         </button>
       </div>
-      
+
+      {/* --- NEW: Preview of the AI Redaction --- */}
+      {redactedText && (
+        <div style={{ marginTop: "20px", padding: "15px", backgroundColor: "#f0f7ff", border: "1px solid #007bff", borderRadius: "5px" }}>
+          <h3 style={{ color: "#007bff", marginTop: 0 }}>AI Redacted Result:</h3>
+          <p style={{ whiteSpace: "pre-wrap", fontSize: "14px" }}>{redactedText}</p>
+        </div>
+      )}
+
       {status === "done" && (
         <div style={{ marginTop: "20px", padding: "15px", backgroundColor: "#d4edda", color: "#155724", borderRadius: "5px" }}>
           <h3>Success. Data Secured.</h3>
