@@ -26,3 +26,16 @@ dist-ssr
 # Secrets
 .env
 .env.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+
+# Firebase
+.firebase/
+firebase-debug.log*
