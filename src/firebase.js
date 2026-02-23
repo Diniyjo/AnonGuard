@@ -5,12 +5,12 @@ import SHA256 from "crypto-js/sha256";
 
 // firebase configuration key
 const firebaseConfig = {
-  apiKey: "AIzaSyCOnY4dOCrU1y6Pk_dHF6Prf9cXrodNA2M",
-  authDomain: "anon-guard2026.firebaseapp.com",
-  projectId: "anon-guard2026",
-  storageBucket: "anon-guard2026.firebasestorage.app",
-  messagingSenderId: "755657871658",
-  appId: "1:755657871658:web:6c04aa48f0c8dcf1d78e53"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID
 };
 
 // Initialize Firebase
