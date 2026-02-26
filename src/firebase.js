@@ -40,10 +40,10 @@ export const saveReport = async (originalText, fileObject) => {
     
     // Convert file if it exists
     if (fileObject) {
-      if (fileObject.size > 1000000) { // Limit to 1MB to prevent crashing
-         alert("File is too big for this Demo! Keep it under 1MB.");
-         return null;
-      }
+      if (fileObject.size > 1000000) {
+    // Just throw an error, let the UI handle the alert
+    throw new Error("File size exceeds 1MB limit"); 
+    } 
       fileString = await fileToBase64(fileObject);
     }
 

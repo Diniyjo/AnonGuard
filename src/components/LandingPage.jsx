@@ -11,8 +11,21 @@ function LandingPage({ onUpload }) {
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
+    
     if (file) {
-      onUpload(file); // Sends file to App.jsx
+      // 1. Check size immediately (1MB = 1,000,000 bytes)
+      if (file.size > 1000000) {
+        alert("File is too big for this Demo! Keep it under 1MB.");
+        
+        // 2. Clear the input so they can try again
+        event.target.value = null; 
+        
+        // 3. STOP here. Do not call onUpload.
+        return; 
+      }
+
+      // Only call this if the file passed the check
+      onUpload(file); 
     }
   };
 
