@@ -26,3 +26,18 @@ dist-ssr
 # Secrets
 .env
 .env.local
+
+# Ignore Python virtual environments
+backend/venv/
+venv/
+ENV/
+.env
+
+# Ignore node modules
+node_module/
+
+backend/venv/
+venv/
+.env
+__pycache__/
+node_modules/

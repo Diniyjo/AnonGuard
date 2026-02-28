@@ -25,7 +25,7 @@
   color: #e6edf3;
 }
 
-/* 2. THE PROGRESS BAR (This is what was missing!) */
+/* 2. THE PROGRESS BAR */
 .progress-container {
   width: 100%;
   max-width: 700px;
@@ -50,7 +50,7 @@
   border: 1px solid #30363d;
 }
 
-/* Fix the Green Bar -> Change to Blue */
+/* Progress Bar */
 .progress-bar-fill {
   background: #3b82f6 !important; 
   height: 100%;
@@ -58,7 +58,7 @@
   box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
 }
 
-/* Ensure Scanner Visibility */
+/* Scanner Visibility */
 .document-glass {
   width: 220px;
   height: 280px;
@@ -84,7 +84,7 @@
   100% { top: 100%; }
 }
 
-/* 3. Document Content Lines (Internal Text) */
+/* ocument Content Lines (Internal Text) */
 .doc-content {
   padding: 30px 20px;
   display: flex;
@@ -98,7 +98,7 @@
   border-radius: 2px;
 }
 
-/* realistic line widths */
+
 .doc-line.header { 
   width: 40%; 
   background: rgba(59, 130, 246, 0.3); 

@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { saveReport, fileToBase64 } from '../firebase'; //
+import { saveReport, fileToBase64 } from '../firebase'; 
 import '../styles/ProcessingPage.css';
 
 function ProcessingPage({ file, onComplete }) {
   const [progress, setProgress] = useState(0);
   const [generatedHash, setGeneratedHash] = useState("");
   const [base64Data, setBase64Data] = useState("");
+  const [isBackendDone, setIsBackendDone] = useState(false);
+  const [redactedCount, setRedactedCount] = useState(0); 
 
   useEffect(() => {
     const doUpload = async () => {
@@ -18,7 +20,7 @@ function ProcessingPage({ file, onComplete }) {
           reader.readAsText(file);
         });
 
-        // 2. Send the raw text to your Python Brain (Port 8000)
+        // 2. Send the raw text to the Python Brain (Port 8000)
         console.log("Sending to Brain...");
         const aiResponse = await fetch("http://127.0.0.1:8000/redact", {
           method: "POST",
@@ -34,17 +36,18 @@ function ProcessingPage({ file, onComplete }) {
            return;
         }
 
-        // 4. (Optional) Save the REDACTED text to Firebase, instead of the original file
-        // Note: You might need to adjust saveReport in firebase.js to accept plain text 
-        // instead of a file object if you want to store the redacted version.
-        // For now, let's just create a dummy hash to keep the UI moving:
-        const dummyHash = "8x9f...a1b2"; // Replace this later with actual save logic
+        // 4. FIX: Set the count from the Python backend response
+        setRedactedCount(data.total_redacted || 0); 
         
-        // 5. Convert the REDACTED text to a downloadable base64 format for the Result Page
+        // 5. Use the REAL hash
+        const realHash = data.hash; 
+        
+        // 6. Convert the REDACTED text to base64 for download
         const redactedBase64 = "data:text/plain;base64," + btoa(unescape(encodeURIComponent(data.redacted_text)));
 
-        setGeneratedHash(dummyHash);
+        setGeneratedHash(realHash);
         setBase64Data(redactedBase64);
+        setIsBackendDone(true); // Tell the UI the AI is finished
         
       } catch (err) {
         console.error("Upload Error:", err);
@@ -57,23 +60,28 @@ function ProcessingPage({ file, onComplete }) {
 
     const timer = setInterval(() => {
       setProgress((oldProgress) => {
+        if (oldProgress >= 95 && !isBackendDone) {
+          return 95; 
+        }
         if (oldProgress >= 100) {
           clearInterval(timer);
           return 100;
         }
-        return Math.min(oldProgress + 5, 100);
+        return oldProgress + 5;
       });
     }, 150);
 
     return () => clearInterval(timer);
-  }, [file]);
+  }, [file, isBackendDone]);
 
   useEffect(() => {
-    if (progress === 100 && generatedHash && base64Data) {
-      // Sending back to App.jsx: hash, file content, and file name
-      setTimeout(() => onComplete(generatedHash, base64Data, file.name), 1000);
+
+    if (progress === 100 && isBackendDone && generatedHash) {
+      setTimeout(() => {
+        onComplete(generatedHash, base64Data, file.name, redactedCount);
+      }, 1000);
     }
-  }, [progress, generatedHash, base64Data, onComplete, file]);
+  }, [progress, isBackendDone, generatedHash, base64Data, redactedCount, onComplete, file.name]);
 
   return (
     <div className="view-container">
@@ -108,6 +116,7 @@ function ProcessingPage({ file, onComplete }) {
           <p><span className="log-scan">[SCAN]</span> Loading document into ephemeral sandbox...</p>
           <p><span className="log-ai">[AI]</span> Gemini 1.5 Pro initialized.</p>
           {progress > 50 && <p><span className="log-scan">[HASH]</span> Generating SHA-256 Integrity...</p>}
+          {isBackendDone && <p><span className="log-init">[SUCCESS]</span> Data received from Brain.</p>}
           <p className="cursor">█</p>
         </div>
       </div>

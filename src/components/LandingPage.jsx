@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import '../styles/LandingPage.css';
 
 function LandingPage({ onUpload }) {
-  // This creates a reference to a hidden file input
+  // reference to a hidden file input
   const fileInputRef = useRef(null);
 
   const handleButtonClick = () => {
@@ -24,7 +24,7 @@ function LandingPage({ onUpload }) {
         <p>Analyze and redact PII from documents instantly using Gemini 1.5. No logs. No traces.</p>
       </div>
 
-      {/* Clicking this div now triggers the file selector */}
+      {/* triggers the file selector */}
       <div className="upload-area" onClick={handleButtonClick}>
         <input 
           type="file" 

@@ -1,7 +1,6 @@
-// src/firebase.js
 import { initializeApp } from "firebase/app";
 import { getFirestore, collection, addDoc, serverTimestamp } from "firebase/firestore";
-import SHA256 from "crypto-js/sha256"; 
+import CryptoJS from "crypto-js"; 
 
 // firebase configuration key
 const firebaseConfig = {
@@ -17,54 +16,58 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// convert file to base64 string (for storage in Firestore)
+// convert file to base64 string
 export const fileToBase64 = (file) => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
+  
+    if (!file) resolve(null); 
+    
     reader.readAsDataURL(file);
     reader.onload = () => resolve(reader.result);
     reader.onerror = (error) => reject(error);
   });
 };
 
-// hash generation using SHA256 from crypto-js
+// hash generation using SHA256
 export const generateHash = (text) => {
-  return SHA256(text).toString();
+
+  return CryptoJS.SHA256(String(text)).toString();
 };
 
 // report saving function
-// Diniy call this function when user submits a report. It takes the text and file, generates a hash, and saves everything to Firestore.
 export const saveReport = async (originalText, fileObject) => {
   try {
     let fileString = null;
     
-    // Convert file if it exists
+    // 1. Convert file if it exists
     if (fileObject) {
-      if (fileObject.size > 1000000) { // Limit to 1MB to prevent crashing
-         alert("File is too big for this Demo! Keep it under 1MB.");
-         return null;
+      // Safety check for file size (Firestore documents have a 1MB limit)
+      if (fileObject.size > 1000000) { 
+          throw new Error("File is too large (Max 1MB for Firestore).");
       }
       fileString = await fileToBase64(fileObject);
     }
 
-    // hashinng here
-    // Hash the text + the file data so ANY change changes the hash
-    const contentToHash = originalText + (fileString || "");
+    // 2. Generate Hash
+    // We hash the content to create a unique fingerprint
+    const contentToHash = (originalText || "") + (fileString || "");
     const docHash = generateHash(contentToHash);
     
-    // Save to Database
-    await addDoc(collection(db, "submissions"), {
+    // 3. Save to Firestore
+    // Collection name: "submissions"
+    const docRef = await addDoc(collection(db, "submissions"), {
       text_content: originalText,
-      file_data: fileString, // <--- Your file is saved here as a text string!
+      file_data: fileString, 
       hash: docHash, 
       timestamp: serverTimestamp(),
       status: "new"
     });
     
-    console.log("Success! Hash ID:", docHash);
-    return docHash;
+    console.log("Firebase Success! Doc ID:", docRef.id);
+    return docHash; // Return the hash so the UI can display it
   } catch (e) {
-    console.error("Error adding document: ", e);
-    throw e;
+    console.error("Firebase Save Error: ", e);
+    throw e; // Pass error back to ProcessingPage to handle
   }
 };

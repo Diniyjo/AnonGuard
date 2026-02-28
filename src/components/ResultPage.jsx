@@ -1,17 +1,20 @@
 import React from 'react';
 import '../styles/ResultPage.css';
 
-function ResultPage({ hash, fileData, fileName, onReset }) {
+function ResultPage({ hash, fileData, fileName, redactedCount, onReset }) {
   
   const handleDownload = () => {
     if (!fileData) return alert("No file data found!");
 
-    // Create a temporary link to trigger the download
     const link = document.createElement('a');
     link.href = fileData; 
     
-    // FIX: Force the download to be a safe .txt file instead of a .pdf
-    link.download = "REDACTED_Anonymous_Report.txt"; 
+    // File Naming
+    const downloadName = fileName 
+      ? `REDACTED_${fileName}` 
+      : "REDACTED_Anonymous_Report.txt";
+    
+    link.download = downloadName; 
     
     document.body.appendChild(link);
     link.click();
@@ -29,7 +32,7 @@ function ResultPage({ hash, fileData, fileName, onReset }) {
       <div className="summary-card">
         <div className="card-header">REPORT SUMMARY</div>
         <div className="file-info">
-          <span>📄 {fileName || 'report_document.pdf'}</span>
+          <span>📄 {fileName || 'report_document.txt'}</span>
           <span className="redacted-tag">REDACTED</span>
         </div>
         
@@ -47,14 +50,14 @@ function ResultPage({ hash, fileData, fileName, onReset }) {
             <span className="masked">+60-**-***-****</span>
           </div>
         </div>
-        <div className="total-count">TOTAL REDACTED: 18 entities</div>
+        {/*  Using count from Python/Firebase backend */}
+        <div className="total-count">TOTAL REDACTED: {redactedCount || 0} entities</div>
       </div>
 
       <div className="summary-card">
         <div className="card-header">INTEGRITY VERIFICATION</div>
         <div className="hash-box">
           <label>SHA-256 FINGERPRINT</label>
-          {/* Displaying the ACTUAL hash from Firebase */}
           <code>{hash || "Processing..."}</code>
         </div>
       </div>
