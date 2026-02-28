@@ -11,17 +11,19 @@ function App() {
   const [finalHash, setFinalHash] = useState("");
   const [fileData, setFileData] = useState(null); 
   const [fileName, setFileName] = useState("");
+  const [redactedCount, setRedactedCount] = useState(0);
 
-  // THIS WAS MISSING! 
   const handleFileSelect = (file) => {
     setUploadedFile(file);
     setStep('PROCESSING');
   };
 
-  const handleProcessComplete = (hash, base64, name) => {
+ 
+  const handleProcessComplete = (hash, base64, name, count) => {
     setFinalHash(hash);
     setFileData(base64); 
     setFileName(name);   
+    setRedactedCount(count); 
     setStep('RESULT');
   };
 
@@ -41,8 +43,9 @@ function App() {
       {step === 'RESULT' && (
         <ResultPage 
           hash={finalHash} 
-          fileData={fileData}  // Added this
-          fileName={fileName}  // Added this
+          fileData={fileData} 
+          fileName={fileName} 
+          redactedCount={redactedCount} 
           onReset={() => setStep('LANDING')} 
         />
       )}

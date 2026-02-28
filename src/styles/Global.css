@@ -17,7 +17,6 @@
   text-align: center;
 }
 
-/* Common Typography used in multiple places */
 .hero h1 { font-size: 2.8rem; margin-bottom: 1rem; font-weight: 700; }
 .hero p { color: #94a3b8; max-width: 600px; margin: 0 auto 2.5rem auto; line-height: 1.6; }
 .badge { background: #1e293b; color: #64748b; padding: 8px 16px; border-radius: 999px; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.1em; display: inline-block; margin-bottom: 1.5rem; }
