@@ -8,8 +8,11 @@ function ResultPage({ hash, fileData, fileName, onReset }) {
 
     // Create a temporary link to trigger the download
     const link = document.createElement('a');
-    link.href = fileData; // This is the Base64 string from Ti's code
-    link.download = `REDACTED_${fileName || 'document.pdf'}`;
+    link.href = fileData; 
+    
+    // FIX: Force the download to be a safe .txt file instead of a .pdf
+    link.download = "REDACTED_Anonymous_Report.txt"; 
+    
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -10,14 +10,42 @@ function ProcessingPage({ file, onComplete }) {
   useEffect(() => {
     const doUpload = async () => {
       try {
-        //
-        const hash = await saveReport("Anonymous AI-Redacted Report", file);
-        const base64 = await fileToBase64(file);
+        // 1. Read the text from the uploaded .txt file
+        const text = await new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.onerror = (e) => reject(e);
+          reader.readAsText(file);
+        });
+
+        // 2. Send the raw text to your Python Brain (Port 8000)
+        console.log("Sending to Brain...");
+        const aiResponse = await fetch("http://127.0.0.1:8000/redact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text: text })
+        });
+
+        // 3. Catch the redacted result
+        const data = await aiResponse.json();
         
-        if (hash) {
-          setGeneratedHash(hash);
-          setBase64Data(base64);
+        if (data.error) {
+           console.error("Brain Error:", data.error);
+           return;
         }
+
+        // 4. (Optional) Save the REDACTED text to Firebase, instead of the original file
+        // Note: You might need to adjust saveReport in firebase.js to accept plain text 
+        // instead of a file object if you want to store the redacted version.
+        // For now, let's just create a dummy hash to keep the UI moving:
+        const dummyHash = "8x9f...a1b2"; // Replace this later with actual save logic
+        
+        // 5. Convert the REDACTED text to a downloadable base64 format for the Result Page
+        const redactedBase64 = "data:text/plain;base64," + btoa(unescape(encodeURIComponent(data.redacted_text)));
+
+        setGeneratedHash(dummyHash);
+        setBase64Data(redactedBase64);
+        
       } catch (err) {
         console.error("Upload Error:", err);
       }
